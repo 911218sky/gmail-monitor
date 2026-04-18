@@ -179,6 +179,36 @@ async def cmd_unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ 已取消訂閱")
 
 
+async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """顯示幫助訊息"""
+    chat_id = update.effective_chat.id
+    is_admin_user = is_admin(chat_id)
+    
+    msg = (
+        "🤖 *Gmail 庫存監控 Bot*\n\n"
+        "📋 *可用指令：*\n\n"
+        "👤 *一般用戶*\n"
+        "/start - 開始使用\n"
+        "/subscribe - 訂閱庫存通知\n"
+        "/unsubscribe - 取消訂閱\n"
+        "/check - 立即檢查庫存\n"
+        "/report - 查看完整報告\n"
+        "/help - 顯示此幫助訊息\n"
+    )
+    
+    if is_admin_user:
+        msg += (
+            "\n🔐 *管理員*\n"
+            "/status - 查看系統狀態\n"
+            "/interval <分鐘> - 調整檢查頻率\n"
+            "/broadcast <訊息> - 廣播訊息\n"
+        )
+    else:
+        msg += "\n🔐 /admin <密碼> - 管理員登入\n"
+    
+    await update.message.reply_text(msg, parse_mode="Markdown")
+
+
 async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """管理員登入"""
     chat_id = update.effective_chat.id
@@ -380,6 +410,7 @@ async def run_bot():
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("subscribe", cmd_subscribe))
     app.add_handler(CommandHandler("unsubscribe", cmd_unsubscribe))
+    app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("admin", cmd_admin))
     app.add_handler(CommandHandler("interval", cmd_interval))
     app.add_handler(CommandHandler("status", cmd_status))
@@ -398,6 +429,7 @@ async def run_bot():
         BotCommand("unsubscribe", "取消訂閱"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
+        BotCommand("help", "顯示幫助訊息"),
         BotCommand("admin", "管理員登入"),
     ]
     await app.bot.set_my_commands(commands)
