@@ -39,6 +39,23 @@ docker compose logs -f  # 查看日誌
 docker compose down
 ```
 
+## 解除安裝
+
+```bash
+# 停止並刪除容器
+docker compose down
+
+# 刪除 Docker 映像
+docker rmi ghcr.io/911218sky/gmail-monitor:latest
+
+# 刪除數據（包含所有訂閱者、庫存記錄等）
+docker volume rm gmail-monitor_monitor-data
+
+# 刪除專案目錄
+cd ..
+rm -rf gmail-monitor
+```
+
 ## Telegram 指令
 
 ### 普通用戶指令
