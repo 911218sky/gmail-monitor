@@ -1,0 +1,10 @@
+services:
+  monitor:
+    build: .
+    env_file: .env
+    volumes:
+      - ./stock_data.json:/app/stock_data.json
+      - ./subscribers.json:/app/subscribers.json
+      - ./config.json:/app/config.json
+      - ./admins.json:/app/admins.json
+    restart: unless-stopped
