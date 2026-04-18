@@ -61,7 +61,11 @@ async def monitor():
                         changes.append(f"{emoji} `{old:>4}→{stock:<4}` ({diff:+d}) │ {short_name}")
             
             if changes:
-                msg = f"🔔 *庫存變化* `{datetime.now().strftime('%H:%M:%S')}`\n"
+                # 檢查是否有補貨（庫存增加）
+                has_restock = any("📈" in change for change in changes)
+                title = "🔔 *庫存變化（有補貨）*" if has_restock else "🔔 *庫存變化*"
+                
+                msg = f"{title} `{datetime.now().strftime('%H:%M:%S')}`\n"
                 msg += "━━━━━━━━━━━━━━━━━━━━\n\n"
                 msg += "\n".join(changes)
                 msg += f"\n\n━━━━━━━━━━━━━━━━━━━━\n"
