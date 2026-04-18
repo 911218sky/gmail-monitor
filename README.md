@@ -39,6 +39,13 @@ docker compose logs -f  # 查看日誌
 docker compose down
 ```
 
+## 更新到最新版本
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
 ## 解除安裝
 
 ```bash
