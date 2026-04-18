@@ -1,6 +1,6 @@
 import asyncio
 from telegram import Bot, BotCommand
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
 from config import BOT_TOKEN, URL
 from storage import load_config, load_subscribers
@@ -9,7 +9,7 @@ from handlers import (
     cmd_admin, cmd_interval, cmd_status, cmd_broadcast,
     cmd_check, cmd_report
 )
-from callbacks import button_callback
+from callbacks import button_callback, handle_text
 from monitor_logic import monitor
 
 
@@ -31,6 +31,9 @@ async def run_bot():
     
     # 註冊按鈕回調處理器
     app.add_handler(CallbackQueryHandler(button_callback))
+    
+    # 註冊文字訊息處理器（處理鍵盤按鈕）
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     
     await app.initialize()
     await app.start()

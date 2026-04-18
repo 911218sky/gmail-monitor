@@ -1,5 +1,5 @@
 from datetime import datetime
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
+from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, Bot
 from telegram.ext import ContextTypes
 
 from config import BOT_TOKEN, ADMIN_PASSWORD, URL
@@ -10,65 +10,63 @@ from storage import (
 from scraper import fetch_stock
 
 
+def get_user_keyboard(is_subscribed=False, is_admin_user=False):
+    """取得用戶鍵盤"""
+    if is_subscribed:
+        keyboard = [
+            ["📊 查看報告", "🔍 立即檢查"],
+            ["❌ 取消訂閱", "❓ 幫助"],
+        ]
+        if is_admin_user:
+            keyboard.append(["⚙️ 系統狀態"])
+    else:
+        keyboard = [
+            ["✅ 訂閱通知"],
+            ["📊 查看報告", "❓ 幫助"],
+        ]
+    
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """開始指令 - 帶按鈕"""
+    """開始指令"""
     chat_id = update.effective_chat.id
     subscribers = load_subscribers()
     is_subscribed = chat_id in subscribers
     is_admin_user = is_admin(chat_id)
     
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user)
+    
     if is_subscribed:
-        keyboard = [
-            [InlineKeyboardButton("📊 查看報告", callback_data="report")],
-            [InlineKeyboardButton("🔍 立即檢查", callback_data="check")],
-            [InlineKeyboardButton("❌ 取消訂閱", callback_data="unsubscribe")],
-        ]
-        if is_admin_user:
-            keyboard.append([InlineKeyboardButton("⚙️ 系統狀態", callback_data="status")])
-        
-        msg = "🤖 *Gmail 庫存監控 Bot*\n\n✅ 你已訂閱，會自動收到庫存變化通知"
+        msg = "🤖 *Gmail 庫存監控 Bot*\n\n✅ 你已訂閱，會自動收到庫存變化通知\n\n使用下方按鈕快速操作"
     else:
-        keyboard = [
-            [InlineKeyboardButton("✅ 訂閱通知", callback_data="subscribe")],
-            [InlineKeyboardButton("📊 查看報告", callback_data="report")],
-            [InlineKeyboardButton("❓ 幫助", callback_data="help")],
-        ]
         msg = "🤖 *Gmail 庫存監控 Bot*\n\n👋 歡迎使用！點擊下方按鈕開始"
     
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode="Markdown")
+    await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """幫助指令"""
     chat_id = update.effective_chat.id
+    subscribers = load_subscribers()
+    is_subscribed = chat_id in subscribers
     is_admin_user = is_admin(chat_id)
     
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user)
     
     msg = (
         "🤖 *Gmail 庫存監控 Bot*\n\n"
-        "📋 *可用指令：*\n\n"
-        "👤 *一般用戶*\n"
-        "/start - 開始使用\n"
-        "/subscribe - 訂閱庫存通知\n"
-        "/check - 立即檢查庫存\n"
-        "/report - 查看完整報告\n"
-        "/help - 顯示此幫助訊息\n"
+        "📋 *可用功能：*\n\n"
+        "✅ 訂閱通知 - 接收庫存變化\n"
+        "📊 查看報告 - 完整庫存列表\n"
+        "🔍 立即檢查 - 手動檢查變化\n"
+        "❓ 幫助 - 顯示此訊息\n"
     )
     
     if is_admin_user:
-        msg += (
-            "\n🔐 *管理員*\n"
-            "/status - 查看系統狀態\n"
-            "/interval <分鐘> - 調整檢查頻率\n"
-            "/broadcast <訊息> - 廣播訊息\n"
-        )
-    else:
-        msg += "\n🔐 /admin <密碼> - 管理員登入\n"
+        msg += "\n🔐 *管理員功能：*\n⚙️ 系統狀態 - 查看統計\n/interval <分鐘> - 調整頻率\n/broadcast <訊息> - 廣播\n"
     
-    await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode="Markdown")
+    await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
 
 
 async def cmd_subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -76,12 +74,11 @@ async def cmd_subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     add_subscriber(chat_id)
     
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    keyboard = get_user_keyboard(is_subscribed=True, is_admin_user=is_admin(chat_id))
     
     await update.message.reply_text(
         f"✅ 訂閱成功！\n\n你將收到庫存變化通知\nChat ID: `{chat_id}`",
-        reply_markup=reply_markup,
+        reply_markup=keyboard,
         parse_mode="Markdown"
     )
 
@@ -91,10 +88,9 @@ async def cmd_unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     remove_subscriber(chat_id)
     
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    keyboard = get_user_keyboard(is_subscribed=False, is_admin_user=is_admin(chat_id))
     
-    await update.message.reply_text("✅ 已取消訂閱", reply_markup=reply_markup)
+    await update.message.reply_text("✅ 已取消訂閱", reply_markup=keyboard)
 
 
 async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -114,12 +110,13 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     admins.add(chat_id)
     save_admins(admins)
     
-    keyboard = [[InlineKeyboardButton("⚙️ 系統狀態", callback_data="status")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    subscribers = load_subscribers()
+    is_subscribed = chat_id in subscribers
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user=True)
     
     await update.message.reply_text(
-        "✅ *管理員登入成功！*\n\n使用 /status 查看系統狀態",
-        reply_markup=reply_markup,
+        "✅ *管理員登入成功！*\n\n現在可以使用管理員功能",
+        reply_markup=keyboard,
         parse_mode="Markdown"
     )
 
@@ -147,7 +144,8 @@ async def cmd_interval(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """查看系統狀態（管理員）"""
-    if not is_admin(update.effective_chat.id):
+    chat_id = update.effective_chat.id
+    if not is_admin(chat_id):
         await update.message.reply_text("❌ 此指令僅限管理員使用")
         return
     
@@ -155,8 +153,8 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     subscribers = load_subscribers()
     admins = load_admins()
     
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    is_subscribed = chat_id in subscribers
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user=True)
     
     await update.message.reply_text(
         f"📊 *系統狀態*\n\n"
@@ -164,7 +162,7 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👥 訂閱人數: *{len(subscribers)}*\n"
         f"🔐 管理員數: *{len(admins)}*\n"
         f"🌐 監控網址: {URL}",
-        reply_markup=reply_markup,
+        reply_markup=keyboard,
         parse_mode="Markdown"
     )
 
@@ -198,8 +196,11 @@ async def cmd_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """立即檢查庫存"""
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    chat_id = update.effective_chat.id
+    subscribers = load_subscribers()
+    is_subscribed = chat_id in subscribers
+    is_admin_user = is_admin(chat_id)
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user)
     
     await update.message.reply_text("🔍 正在檢查...")
     try:
@@ -217,19 +218,22 @@ async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if changes:
             msg = "🔔 *發現變化*\n━━━━━━━━━━━━━━━━━━━━\n\n" + "\n".join(changes)
-            await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode="Markdown")
+            await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
         else:
-            await update.message.reply_text("✅ 無變化", reply_markup=reply_markup)
+            await update.message.reply_text("✅ 無變化", reply_markup=keyboard)
         
         save_stock(current)
     except Exception as e:
-        await update.message.reply_text(f"❌ 錯誤: {e}", reply_markup=reply_markup)
+        await update.message.reply_text(f"❌ 錯誤: {e}", reply_markup=keyboard)
 
 
 async def cmd_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """查看完整庫存報告"""
-    keyboard = [[InlineKeyboardButton("🏠 返回主選單", callback_data="start")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    chat_id = update.effective_chat.id
+    subscribers = load_subscribers()
+    is_subscribed = chat_id in subscribers
+    is_admin_user = is_admin(chat_id)
+    keyboard = get_user_keyboard(is_subscribed, is_admin_user)
     
     await update.message.reply_text("📊 正在生成報告...")
     try:
@@ -250,6 +254,6 @@ async def cmd_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg += f"{status} `{stock:>4}` │ {short_name}\n"
         
         msg += f"\n━━━━━━━━━━━━━━━━━━━━\n📦 總計: *{len(stocks)}* 個商品"
-        await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode="Markdown")
+        await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
     except Exception as e:
-        await update.message.reply_text(f"❌ 錯誤: {e}", reply_markup=reply_markup)
+        await update.message.reply_text(f"❌ 錯誤: {e}", reply_markup=keyboard)
