@@ -7,4 +7,4 @@ RUN uv sync --frozen
 
 COPY src/ ./src/
 
-CMD ["uv", "run", "src/monitor.py"]
+CMD ["uv", "run", "src/main.py"]
