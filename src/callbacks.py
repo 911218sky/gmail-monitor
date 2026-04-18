@@ -23,6 +23,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await cmd_help(update, context)
     elif text == "⚙️ 系統狀態":
         await cmd_status(update, context)
+    elif text == "📢 廣播":
+        await update.message.reply_text(
+            "📢 *廣播訊息*\n\n"
+            "使用指令: /broadcast <訊息內容>\n\n"
+            "例如: /broadcast 系統將於今晚維護",
+            parse_mode="Markdown"
+        )
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -18,12 +18,14 @@ def get_user_keyboard(is_subscribed=False, is_admin_user=False):
             ["❌ 取消訂閱", "❓ 幫助"],
         ]
         if is_admin_user:
-            keyboard.append(["⚙️ 系統狀態"])
+            keyboard.append(["⚙️ 系統狀態", "📢 廣播"])
     else:
         keyboard = [
             ["✅ 訂閱通知"],
             ["📊 查看報告", "❓ 幫助"],
         ]
+        if is_admin_user:
+            keyboard.append(["⚙️ 系統狀態"])
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -64,7 +66,14 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     
     if is_admin_user:
-        msg += "\n🔐 *管理員功能：*\n⚙️ 系統狀態 - 查看統計\n/interval <分鐘> - 調整頻率\n/broadcast <訊息> - 廣播\n"
+        msg += (
+            "\n🔐 *管理員功能：*\n"
+            "⚙️ 系統狀態 - 查看統計資訊\n"
+            "/interval <分鐘> - 調整檢查頻率\n"
+            "/broadcast <訊息> - 廣播給所有訂閱者\n"
+        )
+    else:
+        msg += "\n🔐 /admin <密碼> - 管理員登入\n"
     
     await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
 
