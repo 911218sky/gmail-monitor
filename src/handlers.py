@@ -143,7 +143,14 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = get_user_keyboard(is_subscribed, is_admin_user=True)
     
     await update.message.reply_text(
-        "✅ *管理員登入成功！*\n\n現在可以使用管理員功能\n\n輸入 / 查看所有可用指令",
+        "✅ *管理員登入成功！*\n\n"
+        "🔧 管理員功能已啟用\n"
+        "📋 指令選單已更新（輸入 / 查看）\n"
+        "⌨️ 鍵盤按鈕已更新\n\n"
+        "可用管理功能：\n"
+        "• /status - 系統狀態\n"
+        "• /interval - 調整檢查間隔\n"
+        "• /broadcast - 廣播訊息",
         reply_markup=keyboard,
         parse_mode="Markdown"
     )
