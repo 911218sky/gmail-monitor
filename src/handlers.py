@@ -273,8 +273,6 @@ async def cmd_threshold(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"現在只會通知變化 ≥{threshold} 的商品",
         parse_mode="Markdown"
     )
-        parse_mode="Markdown"
-    )
 
 
 async def cmd_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
