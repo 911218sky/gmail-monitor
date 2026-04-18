@@ -61,19 +61,24 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     msg = (
         "🤖 *Gmail 庫存監控 Bot*\n\n"
-        "📋 *可用功能：*\n\n"
-        "✅ 訂閱通知 - 接收庫存變化\n"
-        "📊 查看報告 - 完整庫存列表\n"
-        "🔍 立即檢查 - 手動檢查變化\n"
-        "❓ 幫助 - 顯示此訊息\n"
+        "📋 *普通用戶指令：*\n\n"
+        "/start - 開始使用\n"
+        "/subscribe - 訂閱庫存通知\n"
+        "/unsubscribe - 取消訂閱\n"
+        "/notify - 設定通知偏好\n"
+        "/check - 立即檢查庫存\n"
+        "/report - 查看完整報告\n"
+        "/website - 前往官網\n"
+        "/help - 顯示此訊息\n"
     )
     
     if is_admin_user:
         msg += (
-            "\n🔐 *管理員功能：*\n"
-            "⚙️ 系統狀態 - 查看統計資訊\n"
-            "/interval <分鐘> - 調整檢查頻率\n"
-            "/broadcast <訊息> - 廣播給所有訂閱者\n"
+            "\n🔐 *管理員指令：*\n\n"
+            "/status - 系統狀態\n"
+            "/interval <分鐘> - 調整檢查間隔\n"
+            "/threshold <數量> - 調整變化閾值\n"
+            "/broadcast <訊息> - 廣播訊息\n"
         )
     else:
         msg += "\n🔐 /admin <密碼> - 管理員登入\n"
