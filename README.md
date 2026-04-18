@@ -19,35 +19,9 @@ cp .env.example .env
 
 ### 3. 啟動監控
 
-**方式一：Docker Compose（推薦）**
 ```bash
 docker compose up -d
 docker compose logs -f  # 查看日誌
-```
-
-**方式二：Docker 直接運行**
-```bash
-docker run -d \
-  --name gmail-monitor \
-  --restart unless-stopped \
-  -e TG_BOT_TOKEN=你的Token \
-  -e ADMIN_PASSWORD=你的密碼 \
-  -v $(pwd)/stock_data.json:/app/stock_data.json \
-  -v $(pwd)/subscribers.json:/app/subscribers.json \
-  -v $(pwd)/config.json:/app/config.json \
-  -v $(pwd)/admins.json:/app/admins.json \
-  ghcr.io/911218sky/gmail-monitor:latest
-```
-
-**方式三：本地運行**
-```bash
-uv sync
-uv run src/monitor.py
-```
-
-**方式四：本地構建 Docker（開發用）**
-```bash
-docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### 4. 訂閱通知
@@ -63,26 +37,6 @@ docker compose -f docker-compose.dev.yml up -d
 
 ```bash
 docker compose down
-```
-
-## 🚀 部署說明
-
-### GitHub Container Registry (GHCR)
-
-推送到 GitHub 後會自動構建 Docker 映像並推送到 GHCR：
-
-1. 推送代碼到 GitHub
-2. GitHub Actions 自動構建
-3. 映像發布到 `ghcr.io/911218sky/gmail-monitor:latest`
-
-**使用公開映像：**
-```bash
-docker compose up -d
-```
-
-**本地開發：**
-```bash
-docker compose -f docker-compose.dev.yml up -d
 ```
 
 ## Telegram 指令
