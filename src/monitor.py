@@ -389,6 +389,19 @@ async def run_bot():
     
     await app.initialize()
     await app.start()
+    
+    # 設定 Bot 指令選單
+    from telegram import BotCommand
+    commands = [
+        BotCommand("start", "查看指令列表"),
+        BotCommand("subscribe", "訂閱庫存通知"),
+        BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("check", "立即檢查庫存"),
+        BotCommand("report", "查看完整報告"),
+        BotCommand("admin", "管理員登入"),
+    ]
+    await app.bot.set_my_commands(commands)
+    
     await app.updater.start_polling()
     
     # 發送啟動通知給所有訂閱者
