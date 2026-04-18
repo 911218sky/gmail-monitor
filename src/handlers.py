@@ -14,20 +14,20 @@ def get_user_keyboard(is_subscribed=False, is_admin_user=False):
     """取得用戶鍵盤"""
     if is_subscribed:
         keyboard = [
-            ["/report", "/check"],
-            ["/website", "/help"],
-            ["/unsubscribe"],
+            ["📊 查看報告", "🔍 立即檢查"],
+            ["🌐 前往官網", "❓ 幫助"],
+            ["❌ 取消訂閱"],
         ]
         if is_admin_user:
-            keyboard.insert(2, ["/status", "/broadcast"])
+            keyboard.insert(2, ["⚙️ 系統狀態", "📢 廣播"])
     else:
         keyboard = [
-            ["/subscribe"],
-            ["/report", "/website"],
-            ["/help"],
+            ["✅ 訂閱通知"],
+            ["📊 查看報告", "🌐 前往官網"],
+            ["❓ 幫助"],
         ]
         if is_admin_user:
-            keyboard.insert(2, ["/status"])
+            keyboard.insert(2, ["⚙️ 系統狀態"])
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
