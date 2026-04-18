@@ -14,20 +14,20 @@ def get_user_keyboard(is_subscribed=False, is_admin_user=False):
     """取得用戶鍵盤"""
     if is_subscribed:
         keyboard = [
-            ["📊 查看報告", "🔍 立即檢查"],
-            ["🌐 前往官網", "❓ 幫助"],
-            ["❌ 取消訂閱"],
+            ["/report", "/check"],
+            ["/website", "/help"],
+            ["/unsubscribe"],
         ]
         if is_admin_user:
-            keyboard.insert(2, ["⚙️ 系統狀態", "📢 廣播"])
+            keyboard.insert(2, ["/status", "/broadcast"])
     else:
         keyboard = [
-            ["✅ 訂閱通知"],
-            ["📊 查看報告", "🌐 前往官網"],
-            ["❓ 幫助"],
+            ["/subscribe"],
+            ["/report", "/website"],
+            ["/help"],
         ]
         if is_admin_user:
-            keyboard.insert(2, ["⚙️ 系統狀態"])
+            keyboard.insert(2, ["/status"])
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -129,6 +129,7 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         BotCommand("unsubscribe", "取消訂閱"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
+        BotCommand("website", "前往官網"),
         BotCommand("status", "系統狀態"),
         BotCommand("interval", "調整檢查間隔"),
         BotCommand("broadcast", "廣播訊息"),
@@ -284,3 +285,11 @@ async def cmd_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(msg, reply_markup=keyboard, parse_mode="Markdown")
     except Exception as e:
         await update.message.reply_text(f"❌ 錯誤: {e}", reply_markup=keyboard)
+
+
+async def cmd_website(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """前往官網"""
+    await update.message.reply_text(
+        f"🌐 *官方網站*\n\n{URL}\n\n點擊連結前往查看商品",
+        parse_mode="Markdown"
+    )

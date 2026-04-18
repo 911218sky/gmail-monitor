@@ -1,15 +1,15 @@
 import asyncio
 from telegram import Bot, BotCommand
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 
 from config import BOT_TOKEN, URL
 from storage import load_config, load_subscribers
 from handlers import (
     cmd_start, cmd_help, cmd_subscribe, cmd_unsubscribe,
     cmd_admin, cmd_interval, cmd_status, cmd_broadcast,
-    cmd_check, cmd_report
+    cmd_check, cmd_report, cmd_website
 )
-from callbacks import button_callback, handle_text
+from callbacks import button_callback
 from monitor_logic import monitor
 
 
@@ -28,12 +28,10 @@ async def run_bot():
     app.add_handler(CommandHandler("broadcast", cmd_broadcast))
     app.add_handler(CommandHandler("check", cmd_check))
     app.add_handler(CommandHandler("report", cmd_report))
+    app.add_handler(CommandHandler("website", cmd_website))
     
     # 註冊按鈕回調處理器
     app.add_handler(CallbackQueryHandler(button_callback))
-    
-    # 註冊文字訊息處理器（處理鍵盤按鈕）
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     
     await app.initialize()
     await app.start()
@@ -45,6 +43,7 @@ async def run_bot():
         BotCommand("unsubscribe", "取消訂閱"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
+        BotCommand("website", "前往官網"),
         BotCommand("help", "顯示幫助訊息"),
         BotCommand("admin", "管理員登入"),
     ]
@@ -60,6 +59,7 @@ async def run_bot():
         BotCommand("unsubscribe", "取消訂閱"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
+        BotCommand("website", "前往官網"),
         BotCommand("status", "系統狀態"),
         BotCommand("interval", "調整檢查間隔"),
         BotCommand("broadcast", "廣播訊息"),
