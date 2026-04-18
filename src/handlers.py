@@ -5,7 +5,8 @@ from telegram.ext import ContextTypes
 from config import BOT_TOKEN, ADMIN_PASSWORD, URL
 from storage import (
     add_subscriber, remove_subscriber, is_admin, load_admins, save_admins,
-    load_config, save_config, load_subscribers, load_previous_stock, save_stock
+    load_config, save_config, load_subscribers, load_previous_stock, save_stock,
+    get_user_preference, set_user_preference
 )
 from scraper import fetch_stock
 
@@ -104,6 +105,43 @@ async def cmd_unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ 已取消訂閱", reply_markup=keyboard)
 
 
+async def cmd_notify(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """設定通知偏好"""
+    chat_id = update.effective_chat.id
+    subscribers = load_subscribers()
+    
+    if chat_id not in subscribers:
+        await update.message.reply_text("❌ 請先訂閱才能設定通知偏好\n使用 /subscribe 訂閱")
+        return
+    
+    if not context.args:
+        current = get_user_preference(chat_id)
+        pref_text = {"all": "全部通知", "increase": "只接收補貨", "decrease": "只接收減少"}
+        await update.message.reply_text(
+            f"📢 *當前通知偏好*: {pref_text.get(current, '全部通知')}\n\n"
+            f"用法: /notify <類型>\n\n"
+            f"可用類型：\n"
+            f"• all - 全部通知（增加+減少）\n"
+            f"• increase - 只接收補貨通知\n"
+            f"• decrease - 只接收減少通知\n\n"
+            f"例如: /notify increase",
+            parse_mode="Markdown"
+        )
+        return
+    
+    preference = context.args[0].lower()
+    if preference not in ["all", "increase", "decrease"]:
+        await update.message.reply_text("❌ 無效的類型，請使用: all, increase, decrease")
+        return
+    
+    set_user_preference(chat_id, preference)
+    pref_text = {"all": "全部通知", "increase": "只接收補貨", "decrease": "只接收減少"}
+    await update.message.reply_text(
+        f"✅ 通知偏好已設為: *{pref_text[preference]}*",
+        parse_mode="Markdown"
+    )
+
+
 async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """管理員登入"""
     chat_id = update.effective_chat.id
@@ -127,6 +165,7 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         BotCommand("start", "開始使用"),
         BotCommand("subscribe", "訂閱庫存通知"),
         BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("notify", "設定通知偏好"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
         BotCommand("website", "前往官網"),

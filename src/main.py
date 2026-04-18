@@ -5,7 +5,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 from config import BOT_TOKEN, URL
 from storage import load_config, load_subscribers
 from handlers import (
-    cmd_start, cmd_help, cmd_subscribe, cmd_unsubscribe,
+    cmd_start, cmd_help, cmd_subscribe, cmd_unsubscribe, cmd_notify,
     cmd_admin, cmd_interval, cmd_threshold, cmd_status, cmd_broadcast,
     cmd_check, cmd_report, cmd_website
 )
@@ -22,6 +22,7 @@ async def run_bot():
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(CommandHandler("subscribe", cmd_subscribe))
     app.add_handler(CommandHandler("unsubscribe", cmd_unsubscribe))
+    app.add_handler(CommandHandler("notify", cmd_notify))
     app.add_handler(CommandHandler("admin", cmd_admin))
     app.add_handler(CommandHandler("interval", cmd_interval))
     app.add_handler(CommandHandler("threshold", cmd_threshold))
@@ -45,6 +46,7 @@ async def run_bot():
         BotCommand("start", "開始使用"),
         BotCommand("subscribe", "訂閱庫存通知"),
         BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("notify", "設定通知偏好"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
         BotCommand("website", "前往官網"),
@@ -61,6 +63,7 @@ async def run_bot():
         BotCommand("start", "開始使用"),
         BotCommand("subscribe", "訂閱庫存通知"),
         BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("notify", "設定通知偏好"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
         BotCommand("website", "前往官網"),

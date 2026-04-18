@@ -7,8 +7,13 @@ from storage import load_config, load_subscribers, load_previous_stock, save_sto
 from scraper import fetch_stock
 
 
-async def send_telegram(message):
-    """發送 Telegram 訊息給所有訂閱者"""
+async def send_telegram(message, change_type="all"):
+    """發送 Telegram 訊息給所有訂閱者
+    
+    Args:
+        message: 訊息內容
+        change_type: 變化類型 ('increase', 'decrease', 'all')
+    """
     if not BOT_TOKEN:
         print(f"[未配置 TG] {message}")
         return
@@ -20,9 +25,14 @@ async def send_telegram(message):
         print(f"[無訂閱者] {message}")
         return
     
+    from storage import get_user_preference
+    
     for chat_id in subscribers:
         try:
-            await bot.send_message(chat_id=chat_id, text=message, parse_mode="Markdown")
+            # 檢查用戶偏好
+            user_pref = get_user_preference(chat_id)
+            if user_pref == "all" or user_pref == change_type:
+                await bot.send_message(chat_id=chat_id, text=message, parse_mode="Markdown")
         except Exception as e:
             print(f"[發送失敗 {chat_id}] {e}")
 
@@ -63,14 +73,25 @@ async def monitor():
             if changes:
                 # 檢查是否有補貨（庫存增加）
                 has_restock = any("📈" in change for change in changes)
-                title = "🔔 *庫存變化（有補貨）*" if has_restock else "🔔 *庫存變化*"
+                has_decrease = any("📉" in change for change in changes)
+                
+                # 判斷變化類型
+                if has_restock and has_decrease:
+                    change_type = "all"
+                    title = "🔔 *庫存變化（有補貨）*"
+                elif has_restock:
+                    change_type = "increase"
+                    title = "🔔 *庫存變化（有補貨）*"
+                else:
+                    change_type = "decrease"
+                    title = "🔔 *庫存變化*"
                 
                 msg = f"{title} `{datetime.now().strftime('%H:%M:%S')}`\n"
                 msg += "━━━━━━━━━━━━━━━━━━━━\n\n"
                 msg += "\n".join(changes)
                 msg += f"\n\n━━━━━━━━━━━━━━━━━━━━\n"
                 msg += f"📊 共 *{len(changes)}* 項變化"
-                await send_telegram(msg)
+                await send_telegram(msg, change_type)
                 print(msg)
             else:
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] 無變化")

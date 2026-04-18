@@ -3,6 +3,8 @@ from config import (
     DATA_FILE, CONFIG_FILE, SUBSCRIBERS_FILE, ADMINS_FILE, DEFAULT_INTERVAL, DEFAULT_THRESHOLD
 )
 
+PREFERENCES_FILE = CONFIG_FILE.parent / "preferences.json"
+
 
 def load_previous_stock():
     if DATA_FILE.exists():
@@ -62,3 +64,29 @@ def save_admins(admins):
 
 def is_admin(chat_id):
     return chat_id in load_admins()
+
+
+
+def load_preferences():
+    """載入用戶通知偏好 {chat_id: 'all'|'increase'|'decrease'}"""
+    if PREFERENCES_FILE.exists():
+        return json.loads(PREFERENCES_FILE.read_text())
+    return {}
+
+
+def save_preferences(prefs):
+    """儲存用戶通知偏好"""
+    PREFERENCES_FILE.write_text(json.dumps(prefs, indent=2))
+
+
+def get_user_preference(chat_id):
+    """取得用戶通知偏好，預設為 'all'"""
+    prefs = load_preferences()
+    return prefs.get(str(chat_id), "all")
+
+
+def set_user_preference(chat_id, preference):
+    """設定用戶通知偏好"""
+    prefs = load_preferences()
+    prefs[str(chat_id)] = preference
+    save_preferences(prefs)
