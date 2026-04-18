@@ -132,6 +132,7 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         BotCommand("website", "前往官網"),
         BotCommand("status", "系統狀態"),
         BotCommand("interval", "調整檢查間隔"),
+        BotCommand("threshold", "調整變化閾值"),
         BotCommand("broadcast", "廣播訊息"),
         BotCommand("help", "顯示幫助訊息"),
     ]
@@ -150,6 +151,7 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "可用管理功能：\n"
         "• /status - 系統狀態\n"
         "• /interval - 調整檢查間隔\n"
+        "• /threshold - 調整變化閾值\n"
         "• /broadcast - 廣播訊息",
         reply_markup=keyboard,
         parse_mode="Markdown"
@@ -194,10 +196,44 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"📊 *系統狀態*\n\n"
         f"⏱ 檢查間隔: *{config['interval']}* 分鐘\n"
+        f"📈 變化閾值: *{config.get('threshold', 200)}*\n"
         f"👥 訂閱人數: *{len(subscribers)}*\n"
         f"🔐 管理員數: *{len(admins)}*\n"
         f"🌐 監控網址: {URL}",
         reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+
+
+async def cmd_threshold(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """調整變化閾值（管理員）"""
+    if not is_admin(update.effective_chat.id):
+        await update.message.reply_text("❌ 此指令僅限管理員使用")
+        return
+    
+    if not context.args or not context.args[0].isdigit():
+        config = load_config()
+        await update.message.reply_text(
+            f"📊 *當前變化閾值*: {config.get('threshold', 200)}\n\n"
+            f"只通知變化超過此數量的商品\n\n"
+            f"用法: /threshold <數量>\n例如: /threshold 100",
+            parse_mode="Markdown"
+        )
+        return
+    
+    threshold = int(context.args[0])
+    if threshold < 0:
+        await update.message.reply_text("❌ 閾值不能為負數")
+        return
+    
+    config = load_config()
+    config["threshold"] = threshold
+    save_config(config)
+    await update.message.reply_text(
+        f"✅ 變化閾值已設為 *{threshold}*\n\n"
+        f"現在只會通知變化 ≥{threshold} 的商品",
+        parse_mode="Markdown"
+    )
         parse_mode="Markdown"
     )
 

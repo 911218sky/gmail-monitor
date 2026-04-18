@@ -6,7 +6,7 @@ from config import BOT_TOKEN, URL
 from storage import load_config, load_subscribers
 from handlers import (
     cmd_start, cmd_help, cmd_subscribe, cmd_unsubscribe,
-    cmd_admin, cmd_interval, cmd_status, cmd_broadcast,
+    cmd_admin, cmd_interval, cmd_threshold, cmd_status, cmd_broadcast,
     cmd_check, cmd_report, cmd_website
 )
 from callbacks import button_callback, handle_text
@@ -24,6 +24,7 @@ async def run_bot():
     app.add_handler(CommandHandler("unsubscribe", cmd_unsubscribe))
     app.add_handler(CommandHandler("admin", cmd_admin))
     app.add_handler(CommandHandler("interval", cmd_interval))
+    app.add_handler(CommandHandler("threshold", cmd_threshold))
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("broadcast", cmd_broadcast))
     app.add_handler(CommandHandler("check", cmd_check))
@@ -65,6 +66,7 @@ async def run_bot():
         BotCommand("website", "前往官網"),
         BotCommand("status", "系統狀態"),
         BotCommand("interval", "調整檢查間隔"),
+        BotCommand("threshold", "調整變化閾值"),
         BotCommand("broadcast", "廣播訊息"),
         BotCommand("help", "顯示幫助訊息"),
     ]

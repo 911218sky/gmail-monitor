@@ -44,6 +44,7 @@ async def monitor():
             
             current = await fetch_stock()
             previous = load_previous_stock()
+            threshold = config.get("threshold", 200)
             
             changes = []
             for name, stock in current.items():
@@ -53,9 +54,11 @@ async def monitor():
                     changes.append(f"🆕 `{stock:>4}` │ {short_name}")
                 elif old != stock:
                     diff = stock - old
-                    emoji = "📈" if diff > 0 else "📉"
-                    short_name = name.replace("【", "").replace("】", "").split("(")[0][:25]
-                    changes.append(f"{emoji} `{old:>4}→{stock:<4}` ({diff:+d}) │ {short_name}")
+                    # 只通知變化超過閾值的商品
+                    if abs(diff) >= threshold:
+                        emoji = "📈" if diff > 0 else "📉"
+                        short_name = name.replace("【", "").replace("】", "").split("(")[0][:25]
+                        changes.append(f"{emoji} `{old:>4}→{stock:<4}` ({diff:+d}) │ {short_name}")
             
             if changes:
                 msg = f"🔔 *庫存變化* `{datetime.now().strftime('%H:%M:%S')}`\n"

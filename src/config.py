@@ -24,3 +24,6 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 # 預設檢查間隔（分鐘）
 DEFAULT_INTERVAL = 5
+
+# 預設變化閾值（只通知變化超過此數量的商品）
+DEFAULT_THRESHOLD = 200

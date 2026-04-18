@@ -1,6 +1,6 @@
 import json
 from config import (
-    DATA_FILE, CONFIG_FILE, SUBSCRIBERS_FILE, ADMINS_FILE, DEFAULT_INTERVAL
+    DATA_FILE, CONFIG_FILE, SUBSCRIBERS_FILE, ADMINS_FILE, DEFAULT_INTERVAL, DEFAULT_THRESHOLD
 )
 
 
@@ -16,8 +16,12 @@ def save_stock(data):
 
 def load_config():
     if CONFIG_FILE.exists():
-        return json.loads(CONFIG_FILE.read_text())
-    return {"interval": DEFAULT_INTERVAL}
+        config = json.loads(CONFIG_FILE.read_text())
+        # 確保有 threshold 欄位
+        if "threshold" not in config:
+            config["threshold"] = DEFAULT_THRESHOLD
+        return config
+    return {"interval": DEFAULT_INTERVAL, "threshold": DEFAULT_THRESHOLD}
 
 
 def save_config(config):
