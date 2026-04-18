@@ -38,16 +38,38 @@ async def run_bot():
     await app.initialize()
     await app.start()
     
-    # 設定 Bot 指令選單
+    # 設定一般用戶的 Bot 指令選單
     commands = [
         BotCommand("start", "開始使用"),
         BotCommand("subscribe", "訂閱庫存通知"),
+        BotCommand("unsubscribe", "取消訂閱"),
         BotCommand("check", "立即檢查庫存"),
         BotCommand("report", "查看完整報告"),
         BotCommand("help", "顯示幫助訊息"),
         BotCommand("admin", "管理員登入"),
     ]
     await app.bot.set_my_commands(commands)
+    
+    # 為已存在的管理員設定專屬指令選單
+    from telegram import BotCommandScopeChat
+    from storage import load_admins
+    admins = load_admins()
+    admin_commands = [
+        BotCommand("start", "開始使用"),
+        BotCommand("subscribe", "訂閱庫存通知"),
+        BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("check", "立即檢查庫存"),
+        BotCommand("report", "查看完整報告"),
+        BotCommand("status", "系統狀態"),
+        BotCommand("interval", "調整檢查間隔"),
+        BotCommand("broadcast", "廣播訊息"),
+        BotCommand("help", "顯示幫助訊息"),
+    ]
+    for admin_id in admins:
+        try:
+            await app.bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=admin_id))
+        except Exception as e:
+            print(f"[設定管理員指令失敗 {admin_id}] {e}")
     
     await app.updater.start_polling()
     

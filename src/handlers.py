@@ -119,12 +119,28 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     admins.add(chat_id)
     save_admins(admins)
     
+    # 為管理員設定專屬指令選單
+    from telegram import BotCommand, BotCommandScopeChat
+    admin_commands = [
+        BotCommand("start", "開始使用"),
+        BotCommand("subscribe", "訂閱庫存通知"),
+        BotCommand("unsubscribe", "取消訂閱"),
+        BotCommand("check", "立即檢查庫存"),
+        BotCommand("report", "查看完整報告"),
+        BotCommand("status", "系統狀態"),
+        BotCommand("interval", "調整檢查間隔"),
+        BotCommand("broadcast", "廣播訊息"),
+        BotCommand("help", "顯示幫助訊息"),
+    ]
+    bot = Bot(token=BOT_TOKEN)
+    await bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=chat_id))
+    
     subscribers = load_subscribers()
     is_subscribed = chat_id in subscribers
     keyboard = get_user_keyboard(is_subscribed, is_admin_user=True)
     
     await update.message.reply_text(
-        "✅ *管理員登入成功！*\n\n現在可以使用管理員功能",
+        "✅ *管理員登入成功！*\n\n現在可以使用管理員功能\n\n輸入 / 查看所有可用指令",
         reply_markup=keyboard,
         parse_mode="Markdown"
     )
