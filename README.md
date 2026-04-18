@@ -42,7 +42,13 @@ docker compose down
 ## 更新到最新版本
 
 ```bash
+# 停止容器
+docker compose down
+
+# 拉取最新映像
 docker compose pull
+
+# 重新啟動
 docker compose up -d
 ```
 
