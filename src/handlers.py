@@ -15,17 +15,19 @@ def get_user_keyboard(is_subscribed=False, is_admin_user=False):
     if is_subscribed:
         keyboard = [
             ["📊 查看報告", "🔍 立即檢查"],
-            ["❌ 取消訂閱", "❓ 幫助"],
+            ["🌐 前往官網", "❓ 幫助"],
+            ["❌ 取消訂閱"],
         ]
         if is_admin_user:
-            keyboard.append(["⚙️ 系統狀態", "📢 廣播"])
+            keyboard.insert(2, ["⚙️ 系統狀態", "📢 廣播"])
     else:
         keyboard = [
             ["✅ 訂閱通知"],
-            ["📊 查看報告", "❓ 幫助"],
+            ["📊 查看報告", "🌐 前往官網"],
+            ["❓ 幫助"],
         ]
         if is_admin_user:
-            keyboard.append(["⚙️ 系統狀態"])
+            keyboard.insert(2, ["⚙️ 系統狀態"])
     
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 

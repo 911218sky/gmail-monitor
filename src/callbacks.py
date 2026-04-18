@@ -23,6 +23,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await cmd_help(update, context)
     elif text == "⚙️ 系統狀態":
         await cmd_status(update, context)
+    elif text == "🌐 前往官網":
+        from config import URL
+        await update.message.reply_text(
+            f"🌐 *官方網站*\n\n{URL}\n\n點擊連結前往查看商品",
+            parse_mode="Markdown"
+        )
     elif text == "📢 廣播":
         await update.message.reply_text(
             "📢 *廣播訊息*\n\n"
