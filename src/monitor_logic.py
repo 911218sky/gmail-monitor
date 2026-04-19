@@ -60,14 +60,14 @@ async def monitor():
             for name, stock in current.items():
                 old = previous.get(name)
                 if old is None:
-                    short_name = name.replace("【", "").replace("】", "")[:30]
+                    short_name = name.replace("【", "").replace("】", "")
                     changes.append(f"🆕 `{stock:>4}` │ {short_name}")
                 elif old != stock:
                     diff = stock - old
                     # 只通知變化超過閾值的商品
                     if abs(diff) >= threshold:
                         emoji = "📈" if diff > 0 else "📉"
-                        short_name = name.replace("【", "").replace("】", "")[:30]
+                        short_name = name.replace("【", "").replace("】", "")
                         changes.append(f"{emoji} `{old:>4}→{stock:<4}` ({diff:+d}) │ {short_name}")
             
             if changes:

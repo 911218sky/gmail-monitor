@@ -326,7 +326,7 @@ async def cmd_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if old is not None and old != stock:
                 diff = stock - old
                 emoji = "📈" if diff > 0 else "📉"
-                short_name = name.replace("【", "").replace("】", "")[:30]
+                short_name = name.replace("【", "").replace("】", "")
                 changes.append(f"{emoji} `{old:>4}→{stock:<4}` ({diff:+d}) │ {short_name}")
         
         if changes:
@@ -363,7 +363,7 @@ async def cmd_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 status = "🟢"
             else:
                 status = "🔵"
-            short_name = name.replace("【", "").replace("】", "")[:30]
+            short_name = name.replace("【", "").replace("】", "")
             msg += f"{status} `{stock:>4}` │ {short_name}\n"
         
         msg += f"\n━━━━━━━━━━━━━━━━━━━━\n📦 總計: *{len(stocks)}* 個商品"
